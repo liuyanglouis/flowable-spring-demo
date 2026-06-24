@@ -25,6 +25,7 @@
         
         <!-- 用户任务：部门经理审批 -->
         <userTask id="departmentApproval" name="部门经理审批" flowable:assignee="${manager}">
+            <documentation>部门经理需要审批员工的请假申请</documentation>
             <extensionElements>
                 <flowable:formProperty id="approvalDecision" name="审批意见" type="enum">
                     <flowable:value id="approve" name="同意" />
@@ -32,7 +33,6 @@
                 </flowable:formProperty>
                 <flowable:formProperty id="approvalComments" name="审批备注" type="string" />
             </extensionElements>
-            <documentation>部门经理需要审批员工的请假申请</documentation>
         </userTask>
         
         <!-- 排他网关 -->

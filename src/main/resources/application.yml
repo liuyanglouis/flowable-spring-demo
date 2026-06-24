@@ -27,7 +27,7 @@ flowable:
   async-executor-activate: false
   history-level: audit
   db-history-used: true
-  check-process-definitions: false
+  check-process-definitions: true
   database-schema-update: true
   
 logging:

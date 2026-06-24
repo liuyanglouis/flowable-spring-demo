@@ -52,7 +52,7 @@ public class LeaveApplicationController {
     /**
      * 获取所有请假申请
      */
-    @GetMapping
+    @GetMapping("getAllApp")
     public ResponseEntity<List<LeaveApplication>> getAllApplications() {
         List<LeaveApplication> applications = leaveApplicationService.getAllApplications();
         return ResponseEntity.ok(applications);

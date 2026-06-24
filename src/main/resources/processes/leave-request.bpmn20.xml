@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:flowable="http://flowable.org/bpmn"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://flowable.org/bpmn"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL 
+                                 http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+
+    <process id="leaveRequest" name="请假审批流程" isExecutable="true">
+        
+        <!-- 开始事件 -->
+        <startEvent id="startEvent" name="开始">
+            <extensionElements>
+                <flowable:formProperty id="applicant" name="申请人" type="string" required="true" />
+                <flowable:formProperty id="leaveType" name="请假类型" type="string" required="true" />
+                <flowable:formProperty id="duration" name="请假时长" type="double" required="true" />
+                <flowable:formProperty id="reason" name="请假原因" type="string" />
+            </extensionElements>
+        </startEvent>
+        
+        <!-- 用户任务：部门经理审批 -->
+        <userTask id="departmentApproval" name="部门经理审批" flowable:assignee="${manager}">
+            <extensionElements>
+                <flowable:formProperty id="approvalDecision" name="审批意见" type="enum">
+                    <flowable:value id="approve" name="同意" />
+                    <flowable:value id="reject" name="拒绝" />
+                </flowable:formProperty>
+                <flowable:formProperty id="approvalComments" name="审批备注" type="string" />
+            </extensionElements>
+            <documentation>部门经理需要审批员工的请假申请</documentation>
+        </userTask>
+        
+        <!-- 排他网关 -->
+        <exclusiveGateway id="decisionGateway" name="审批决定" />
+        
+        <!-- 服务任务：人事备案 -->
+        <serviceTask id="hrRecord" name="人事备案" flowable:class="com.example.demo.service.HrRecordService" />
+        
+        <!-- 结束事件 -->
+        <endEvent id="endEvent" name="结束" />
+        
+        <!-- 流程连接线 -->
+        <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="departmentApproval" />
+        <sequenceFlow id="flow2" sourceRef="departmentApproval" targetRef="decisionGateway" />
+        
+        <!-- 审批通过流程 -->
+        <sequenceFlow id="flowApproved" sourceRef="decisionGateway" targetRef="hrRecord">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${approvalDecision == 'approve'}]]>
+            </conditionExpression>
+        </sequenceFlow>
+        
+        <!-- 审批拒绝流程 -->
+        <sequenceFlow id="flowRejected" sourceRef="decisionGateway" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${approvalDecision == 'reject'}]]>
+            </conditionExpression>
+        </sequenceFlow>
+        
+        <sequenceFlow id="flow3" sourceRef="hrRecord" targetRef="endEvent" />
+        
+    </process>
+
+</definitions>
